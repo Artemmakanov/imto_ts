@@ -53,3 +53,26 @@ def plot_forecast(
     plt.legend()
     plt.grid(True)
     plt.show()
+
+
+def df_to_markdown(df: pd.DataFrame, metrics: list) -> str:
+    """
+    Преобразует pandas DataFrame в markdown-таблицу.
+    Индекс добавляется как первый столбец (если нужен).
+    """
+    # Скопируем DF, чтобы не портить оригинал
+    df2 = df.copy()
+    df2 = df2[metrics]
+    df2.insert(0, df2.index.name or "horizon", df2.index)
+
+    # Формируем заголовок
+    header = "| " + " | ".join(df2.columns.astype(str)) + " |"
+    separator = "| " + " | ".join(["---"] * len(df2.columns)) + " |"
+
+    # Формируем строки таблицы
+    rows = [
+        "| " + " | ".join(map(str, map(lambda x: round(x, 3), row))) + " |"
+        for row in df2.values
+    ]
+
+    return "\n".join([header, separator] + rows)
